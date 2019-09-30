@@ -154,17 +154,17 @@ storiesOf("bubble-edit", module)
     wrapDiv.appendChild(canvas);
     setup(canvas);
 
-    const textDiv2 = document.createElement("div");
-    textDiv2.innerText =
+    const textDiv1 = document.createElement("div");
+    textDiv1.innerText =
       'Move the tail, click the "Save and Reload" button, and make sure the tail stays in the same place';
-    textDiv2.style.width = "200px";
-    textDiv2.style.textAlign = "center";
-    textDiv2.style.position = "absolute";
-    textDiv2.style.top = "50px";
-    textDiv2.style.left = "120px";
-    wrapDiv.appendChild(textDiv2);
+    textDiv1.style.width = "200px";
+    textDiv1.style.textAlign = "center";
+    textDiv1.style.position = "absolute";
+    textDiv1.style.top = "50px";
+    textDiv1.style.left = "120px";
+    wrapDiv.appendChild(textDiv1);
 
-    let bubble = Bubble.getInstance(textDiv2);
+    let bubble = Bubble.getInstance(textDiv1);
     bubble.setBubbleSpec({
       version: "1.0",
       style: "shout",
@@ -179,7 +179,7 @@ storiesOf("bubble-edit", module)
     addButton(wrapDiv,
       "Save and Reload",
       () => {
-      bubble = Bubble.getInstance(textDiv2);
+      bubble = Bubble.getInstance(textDiv1);
       Comical.update(wrapDiv);
     });
     return wrapDiv;
@@ -281,7 +281,7 @@ storiesOf("bubble-edit", module)
       bubble4.spec = {
         version: "1.0",
         style: "speech",
-        // Give this one a non-default tip so it starts out intersecting the provious bubble.
+        // Give this one a non-default tip so it starts out intersecting the previous bubble.
         // This lets us easily check on a later tail overlapping an earlier bubble in the same
         // level (though as a cartoon it looks a bit odd...a more plausible comic might have
         // a bubble with no tail overlapping one with a tail that merges into a third which has a
@@ -307,17 +307,17 @@ storiesOf("bubble-edit", module)
     wrapDiv.appendChild(canvas);
     setup(canvas);
 
-    const textDiv2 = document.createElement("div");
-    textDiv2.innerText =
+    const textDiv1 = document.createElement("div");
+    textDiv1.innerText =
       'Change the bubble style to None and make sure the tail goes away';
-    textDiv2.style.width = "200px";
-    textDiv2.style.textAlign = "center";
-    textDiv2.style.position = "absolute";
-    textDiv2.style.top = "50px";
-    textDiv2.style.left = "120px";
-    wrapDiv.appendChild(textDiv2);
+    textDiv1.style.width = "200px";
+    textDiv1.style.textAlign = "center";
+    textDiv1.style.position = "absolute";
+    textDiv1.style.top = "50px";
+    textDiv1.style.left = "120px";
+    wrapDiv.appendChild(textDiv1);
 
-    let bubble = Bubble.getInstance(textDiv2);
+    let bubble = Bubble.getInstance(textDiv1);
     bubble.setBubbleSpec({
       version: "1.0",
       style: "shout",
@@ -332,7 +332,7 @@ storiesOf("bubble-edit", module)
     addButton(wrapDiv,
       "None",
       () => {
-        const spec = Bubble.getBubbleSpec(textDiv2);
+        const spec = Bubble.getBubbleSpec(textDiv1);
         spec.style = "none";
         bubble.setBubbleSpec(spec);
         Comical.update(wrapDiv);
@@ -341,7 +341,7 @@ storiesOf("bubble-edit", module)
     addButton(wrapDiv,
       "Speech",
       () => {
-        const spec = Bubble.getBubbleSpec(textDiv2);
+        const spec = Bubble.getBubbleSpec(textDiv1);
         spec.style = "speech";
         bubble.setBubbleSpec(spec);
         Comical.update(wrapDiv);
@@ -350,7 +350,7 @@ storiesOf("bubble-edit", module)
     addButton(wrapDiv,
       "Shout",
       () => {
-        const spec = Bubble.getBubbleSpec(textDiv2);
+        const spec = Bubble.getBubbleSpec(textDiv1);
         spec.style = "shout";
         bubble.setBubbleSpec(spec);
         Comical.update(wrapDiv);
@@ -368,17 +368,17 @@ storiesOf("bubble-edit", module)
     wrapDiv.appendChild(canvas);
     setup(canvas);
 
-    const textDiv2 = document.createElement("div");
-    textDiv2.innerText =
+    const textDiv1 = document.createElement("div");
+    textDiv1.innerText =
       'This box has\nmultiple tails';
-    textDiv2.style.width = "200px";
-    textDiv2.style.textAlign = "center";
-    textDiv2.style.position = "absolute";
-    textDiv2.style.top = "50px";
-    textDiv2.style.left = "120px";
-    wrapDiv.appendChild(textDiv2);
+    textDiv1.style.width = "200px";
+    textDiv1.style.textAlign = "center";
+    textDiv1.style.position = "absolute";
+    textDiv1.style.top = "50px";
+    textDiv1.style.left = "120px";
+    wrapDiv.appendChild(textDiv1);
 
-    let bubble = Bubble.getInstance(textDiv2);
+    let bubble = Bubble.getInstance(textDiv1);
     bubble.setBubbleSpec({
       version: "1.0",
       style: "speech",
@@ -390,6 +390,63 @@ storiesOf("bubble-edit", module)
 
     setTimeout(() => {
       Comical.update(wrapDiv);
+    }, 200);
+    
+    return wrapDiv;
+  })
+  .add("Handles active only on one box", () => {
+    const wrapDiv = document.createElement("div");
+    wrapDiv.style.position = "relative";
+    wrapDiv.style.height = "300px";
+    const canvas = document.createElement("canvas");
+    canvas.height = 300;
+    canvas.width = 500;
+    canvas.style.zIndex = "1";
+    wrapDiv.appendChild(canvas);
+    setup(canvas);
+
+    setTimeout(() => {
+      const textDiv1 = document.createElement("div");
+      textDiv1.innerText =
+        'Box Number 1';
+      textDiv1.style.width = "200px";
+      textDiv1.style.textAlign = "center";
+      textDiv1.style.position = "absolute";
+      textDiv1.style.top = "50px";
+      textDiv1.style.zIndex = "1001";
+      textDiv1.style.left = "60px";
+      wrapDiv.appendChild(textDiv1);
+
+      let bubble1 = Bubble.getInstance(textDiv1);
+      bubble1.setBubbleSpec({
+        version: "1.0",
+        style: "speech",
+        tips: [Bubble.makeDefaultTip(textDiv1)],
+        level: 1
+      });
+
+      const textDiv2 = document.createElement("div");
+      textDiv2.innerText =
+        'Box number 2 (Active)';
+      textDiv2.style.width = "200px";
+      textDiv2.style.textAlign = "center";
+      textDiv2.style.position = "absolute";
+      textDiv2.style.top = "150px";
+      textDiv2.style.left = "60px";
+      textDiv2.style.zIndex = "1001";
+      textDiv2.classList.add("button-edit-active");
+      wrapDiv.appendChild(textDiv2);
+
+      let bubble2 = Bubble.getInstance(textDiv2);
+      bubble2.setBubbleSpec({
+        version: "1.0",
+        style: "speech",
+        tips: [Bubble.makeDefaultTip(textDiv2)],
+        level: 1
+      });
+
+      //Comical.update(wrapDiv);
+      Comical.convertBubbleJsonToCanvas(wrapDiv);
     }, 200);
     
     return wrapDiv;

@@ -127,11 +127,12 @@ export default class Comical {
   }
 
   public static convertBubbleJsonToCanvas(parent: HTMLElement) {
-    const canvas = parent.ownerDocument!.createElement("canvas");
-    canvas.style.position = "absolute";
-    canvas.style.top = "0";
-    canvas.style.left = "0";
-    canvas.classList.add("bubble-edit-generated");
+    const canvas = Comical.createCanvas(parent);
+    // const canvas = parent.ownerDocument!.createElement("canvas");
+    // canvas.style.position = "absolute";
+    // canvas.style.top = "0";
+    // canvas.style.left = "0";
+    // canvas.classList.add("bubble-edit-generated");
     const oldSvg = parent.getElementsByClassName("bubble-edit-generated")[0];
     if (oldSvg) {
       oldSvg.parentElement!.insertBefore(canvas, oldSvg);
@@ -142,7 +143,25 @@ export default class Comical {
     canvas.width = parent.clientWidth;
     canvas.height = parent.clientHeight;
     setup(canvas);
+
+    // const handleCanvas = Comical.createCanvas(parent);
+    // handleCanvas.id = "handleCanvas"; // TODO: will there be multiples?  TODO: Finalize a better name for it.
+    // handleCanvas.width = canvas.width;
+    // handleCanvas.height = canvas.height;
+    // setup(handleCanvas);
+
     Comical.update(parent);
+  }
+
+  private static createCanvas(parent: HTMLElement): HTMLCanvasElement {
+    const canvas = parent.ownerDocument!.createElement("canvas");
+    canvas.style.position = "absolute";
+    canvas.style.top = "0";
+    canvas.style.left = "0";
+    canvas.classList.add("bubble-edit-generated");
+
+    return canvas;
+
   }
 
   public static bubbleVersion = "1.0";

@@ -122,6 +122,7 @@ export default class Bubble {
     this.content.setAttribute("data-bubble", escapedJson);
 
     // TODO: Are there any conditions where we might want to remove the data-bubble attribute? It is kinda nice to have the tail information persist even if the style is set to "none"
+    // ENHANCE: Maybe you'd want to round off double-precision floating point numbers to 3 decimal places instead of having such long strings of not-very-necessary precision.
   }
 
   public getStyle(): string {
@@ -326,8 +327,17 @@ export default class Bubble {
     mid: Point,
     tip: Point
   ): Tail {
+    
     const tipHandle = this.makeHandle(tip);
     const curveHandle = this.makeHandle(mid);
+    //const isActiveElement = this.content.classList.contains("bubble-edit-active");
+    // let tipHandle: Path.Circle | undefined;
+    // let curveHandle: Path.Circle | undefined;
+    // if (isActiveElement) {
+    //   tipHandle = this.makeHandle(tip);
+    //   curveHandle = this.makeHandle(mid);
+    // }
+
     this.upperLayer.activate();
     let tail = new Tail(
       start,
@@ -386,6 +396,10 @@ export default class Bubble {
     };
     return tail;
   }
+
+  // // TODO: Give it a different name. it's really more like processing all the 
+  // private drawHandle() {
+  // }
 
   // TODO: Help? where should I be? I think this comes up with unique names.
   static handleIndex = 0;
