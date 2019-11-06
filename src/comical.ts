@@ -1,4 +1,6 @@
-import { Color, project, setup, Layer, Point } from "paper";
+//import { Color, project, setup, Layer, Point } from "paper";
+import { Color, project, setup, Layer, Point, Tool, ToolEvent } from "paper";
+//import { Color, project, setup, tool, Layer, Point, Tool } from "paper";
 
 import { Bubble } from "./bubble";
 import { uniqueIds } from "./uniqueId";
@@ -29,6 +31,9 @@ export class Comical {
     static activeBubble: Bubble | undefined;
 
     static activeBubbleListener: ((active: HTMLElement | undefined) => void) | undefined;
+
+    static isDragActive: boolean;
+    static currentDraggedBubble: Bubble | undefined;
 
     public static startEditing(parents: HTMLElement[]): void {
         parents.forEach(parent => Comical.convertBubbleJsonToCanvas(parent));
@@ -228,11 +233,41 @@ export class Comical {
         canvas.width = parent.clientWidth;
         canvas.height = parent.clientHeight;
         setup(canvas); // updates the global project variable to a new project associated with this canvas
+
         this.activeContainers.set(parent, {
             project: project!,
             bubbleList: []
         });
         Comical.update(parent);
+
+        // Event handlers
+        const myPaperTool = new Tool();
+        myPaperTool.onMouseDrag = (event: ToolEvent) => {
+            Comical.handleMouseDrag(event, parent);
+        };
+        myPaperTool.onMouseUp = (event: ToolEvent) => {
+            Comical.isDragActive = false;
+        };
+    }
+
+    private static handleMouseDrag(event: ToolEvent, parentContainer: HTMLElement): void {
+        if (!event || !event.point) {
+            return;
+        }
+
+        if (!this.isDragActive) {
+            const bubble = Comical.getBubbleHitByPoint(parentContainer, event.point);
+            if (bubble) {
+                bubble.onMouseDrag(event);
+
+                // We need to remember which bubble we're currently dragging, so that if we drag this bubble over other bubbles,
+                // there's no potential for us to stop dragging this bubble and start dragging a different bubble which has higher precedence.
+                Comical.isDragActive = true;
+                Comical.currentDraggedBubble = bubble;
+            }
+        } else if (Comical.currentDraggedBubble) {
+            Comical.currentDraggedBubble.onMouseDrag(event);
+        }
     }
 
     public static setActiveBubbleListener(listener: ((selected: HTMLElement | undefined) => void) | undefined) {
@@ -310,6 +345,44 @@ export class Comical {
         }
         const hitResult = containerData.project.hitTest(new Point(x, y));
         return !!hitResult;
+    }
+
+    public static getBubbleHitByPoint(parentContainer: HTMLElement, point: Point): Bubble | undefined {
+        const containerData = Comical.activeContainers.get(parentContainer);
+        if (!containerData) {
+            return undefined;
+        }
+
+        // I think it's easier to just iterate through the bubbles and check if they're hit or not.
+        // You could try to run hitTest, but that gives you a Paper Item, and then you have to figure out which Bubble the Paper Item belongs to... not any easier.
+
+        // Create a shallow copy so we can mess it without concern.
+        const bubbleList = containerData.bubbleList.slice(0);
+
+        // Sort them so that the highest level comes first. If we detect a hit on a higher level bubble, we'll stop and ignore hits on lower level bubbles.
+        bubbleList.sort((a, b) => {
+            let levelA = a.getBubbleSpec().level;
+            if (!levelA) {
+                levelA = 0;
+            }
+
+            let levelB = b.getBubbleSpec().level;
+            if (!levelB) {
+                levelB = 0;
+            }
+
+            // Sort in DESCENDING order, highest order first
+            return levelB - levelA;
+        });
+
+        for (let i = 0; i < bubbleList.length; ++i) {
+            const bubble = bubbleList[i];
+            if (bubble.isHitByPoint(point)) {
+                return bubble;
+            }
+        }
+
+        return undefined;
     }
 
     private static getBubblesInSameCanvas(element: HTMLElement): Bubble[] {

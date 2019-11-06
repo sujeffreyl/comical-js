@@ -13,7 +13,7 @@ export interface BubbleSpecPattern {
     version?: string; // currently 1.0
     style?: string; // The style of bubble, e.g. speech, shout, caption, pointedArcs, ellipse
     tails?: TailSpec[];
-    level?: number; // relative z-index, bubbles with same one merge, larger overlay (not implemented yet)
+    level?: number; // relative z-index, bubbles with same one merge, larger overlay
     borderStyle?: string; // not implemented or fully designed yet
     // Just 1 color for solid, multiple for gradient (top to bottom). Omit for white.
     // Individual strings can be things that can be passed to paper.js to define colors.

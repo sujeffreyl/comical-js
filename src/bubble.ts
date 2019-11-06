@@ -1,4 +1,17 @@
-import { Point, Color, Item, Shape, Layer, Gradient, GradientStop, Path, Rectangle, Group } from "paper";
+import {
+    Point,
+    Color,
+    Item,
+    Shape,
+    Layer,
+    Gradient,
+    GradientStop,
+    Path,
+    Rectangle,
+    Group,
+    ToolEvent,
+    HitResult
+} from "paper";
 import { BubbleSpec, TailSpec, BubbleSpecPattern } from "bubbleSpec";
 import { Comical } from "./comical";
 import { Tail } from "./tail";
@@ -636,6 +649,23 @@ export class Bubble {
         }
     }
 
+    // Returns true if the point is contained within the bubble
+    public isHitByPoint(point: Point): boolean {
+        let hitResult: HitResult | null = this.lowerLayer.hitTest(point); // Returns null if not hit
+        if (hitResult) {
+            return true;
+        }
+
+        hitResult = this.upperLayer.hitTest(point);
+        if (hitResult) {
+            return true;
+        }
+
+        // ENHANCE: I guess ideally we should hit test the tails too
+
+        return false;
+    }
+
     private adjustJoiners(newTip: Point): void {
         this.tails.forEach((tail: Tail) => {
             if (tail.spec.joiner && tail.adjustTip(newTip)) {
@@ -673,6 +703,61 @@ export class Bubble {
             subtree: true
         });
     }
+
+    public onMouseDrag(event: ToolEvent) {
+        if (!event.delta) {
+            return;
+        }
+
+        console.log("Mouse drag event. delta = " + event.delta);
+        // Trying to combine it into a single array didn't work for me, for some reason. I think you need to make sure each child stays in its original layer or something.
+        // So, process each layer individually
+        if (this.lowerLayer.children) {
+            for (let i = 0; i < this.lowerLayer.children.length; ++i) {
+                const item = this.lowerLayer.children[i];
+                item.translate(event.delta);
+            }
+        }
+
+        if (this.upperLayer.children) {
+            for (let i = 0; i < this.upperLayer.children.length; ++i) {
+                const item = this.upperLayer.children[i];
+                item.translate(event.delta);
+            }
+        }
+
+        for (let i = 0; i < this.tails.length; ++i) {
+            // Moves the root of the tail, but leaves the tip in the same place as before.
+            // (The assumption is the tip was positioned more carefully to point to a specific character's mouth,
+            // so it shouldn't be moved)
+            // ENHANCE: The tail handles don't work properly anymore. But they work differently.
+            // ENHANCE: If you move a descendant in a family, it's joiner to its parent doesn't move
+            // ENHANCE: If you move the last descendant in a family, the ancestor's tail tip doesn't stay in place, which is inconsistent behavior.
+            // ENHANCE: Doesnt' work properly on the 2nd picture of "bubbles on two pictures"
+            // ENHANCE: Actually... I think that dragging an individual child should probably not move the whole family. Otherwise, you won't be able to change the relative position of them.
+            const tail = this.tails[i];
+            const newRoot = tail.root.add(event.delta);
+            tail.adjustRoot(newRoot);
+        }
+
+        // TODO: Move the handles too
+        // TODO: Move the content element
+        //this.content.style.left = Bubble.translatePositionStr;
+
+        // let children: Item[] = [];
+        // if (this.lowerLayer.children) {
+        //     children = this.lowerLayer.children.slice(0);
+        // }
+
+        // if (this.upperLayer.children) {
+        //     console.log("UpperLayer has " + this.upperLayer.children.length + " children.");
+        //     children = children.concat(this.upperLayer.children);
+        // }
+
+        // console.log("Translated " + children.length + " children.");
+    }
+
+    //public static translatePositionStr(
 
     // A callback for after the shape is loaded/place.
     // Figures out the information for the tail, then draws the shape and tail
