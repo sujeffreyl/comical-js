@@ -154,11 +154,10 @@ export class ArcTail extends CurveTail {
                 this.prettyPrintPoint(this.root, "root");
                 this.prettyPrintPoint(begin, "begin");
                 this.prettyPrintPoint(end, "end");
-                const deltaFromRootToBegin = begin.subtract(this.root);
-                const deltaFromRootToEnd = end.subtract(this.root);
+                const altTipDelta = begin.subtract(end).divide(2);
 
-                const altTip1 = this.tip.add(deltaFromRootToBegin);
-                const altTip2 = this.tip.add(deltaFromRootToEnd);
+                const altTip1 = this.tip.add(altTipDelta);
+                const altTip2 = this.tip.subtract(altTipDelta);
 
                 this.pathstroke = this.makeBezier(this.root.add(deltaTip), mid1, altTip1);
                 bezier2 = this.makeBezier(altTip2, mid2, this.root.subtract(deltaTip));
